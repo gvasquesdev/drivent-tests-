@@ -14,6 +14,8 @@ async function findHotelById(id: number) {
   return prisma.hotel.findFirst({
     where: {
       id
+    }, include: {
+      Rooms: true
     }
   });
 }

@@ -6,14 +6,14 @@ import { TicketStatus } from "@prisma/client";
 
 async function getAllHotelsList(userId: number) {
   const enrollmentExists = await enrollmentRepository.findWithAddressByUserId(userId);
-  if (!enrollmentExists) throw unauthorizedError();
+  if (!enrollmentExists) throw notFoundError();
   
   const ticketAndTicketTypeExists = await ticketRepository.findTicketByEnrollmentId(enrollmentExists.id);
   if (!ticketAndTicketTypeExists) throw notFoundError();
 
   if(ticketAndTicketTypeExists.status !== TicketStatus.PAID) throw paymentRequiredError();
 
-  if(ticketAndTicketTypeExists.TicketType.isRemote !== false || ticketAndTicketTypeExists.TicketType.includesHotel !== true) throw unauthorizedError();
+  if(ticketAndTicketTypeExists.TicketType.isRemote === true || ticketAndTicketTypeExists.TicketType.includesHotel === false) throw unauthorizedError();
 
   const getAllHotels = await hotelsRepository.findManyHotels();
   return getAllHotels;
@@ -24,7 +24,7 @@ async function getHotelById(hotelId: number, userId: number) {
   if (!hotelExists) throw notFoundError();
 
   const enrollmentExists = await enrollmentRepository.findWithAddressByUserId(userId);
-  if (!enrollmentExists) throw unauthorizedError();
+  if (!enrollmentExists) throw notFoundError();
   
   const ticketAndTicketTypeExists = await ticketRepository.findTicketByEnrollmentId(enrollmentExists.id);
   if (!ticketAndTicketTypeExists) throw notFoundError();
